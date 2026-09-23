@@ -1,22 +1,24 @@
 # codex-jev
 
-次に扱う話題との関連性で過去の会話を選別し、新しいタスクへ渡す小さな handoff を作る Codex プラグインです。
+**English** | [日本語](README.ja.md)
 
-これは `/compact` のような会話全体の要約ではありません。ユーザーが指定した `nextTopic` に必要な原文ブロックを残し、明確に不要なブロックだけを除外します。現在のチャット履歴自体は変更しません。
+A Codex plugin that selects past conversation blocks relevant to the next topic and builds a compact handoff for a new task.
 
-## 最小仕様
+This is not a general-purpose summary like `/compact`. It keeps exact source blocks needed for the user-supplied `nextTopic` and removes only blocks that are clearly unnecessary. It does not modify the active chat history.
 
-- MCPツールは `jev_context.curate_context` の1つだけ
-- 入力は `nextTopic` と、順序付きの会話 `blocks`
-- `system` / `developer`、`pin: true`、`status: open` は常に保持
-- 秘密情報らしいブロックは外部へ送らず保持
-- Jevの `drop` 確率が既定で0.9以上の場合だけ除外
-- APIキー未設定、通信失敗、不正な応答では全件保持
-- 残した本文は原文・元の順序を維持
+## Minimal behavior
 
-## Jev設定
+- Exposes one MCP tool: `jev_context.curate_context`
+- Accepts a `nextTopic` and ordered conversation `blocks`
+- Always preserves `system` / `developer` blocks, `pin: true`, and `status: open`
+- Keeps likely secrets local and never sends those blocks to Jev
+- Removes a block only when Jev's `drop` probability is at least 0.9 by default
+- Preserves every block when the API key is missing, the request fails, or the response is invalid
+- Keeps retained text verbatim and in its original order
 
-Jevの接続設定は [`plugins/codex-jev/config.json`](plugins/codex-jev/config.json) に分離しています。
+## Jev configuration
+
+Jev connection settings live in [`plugins/codex-jev/config.json`](plugins/codex-jev/config.json).
 
 ```json
 {
@@ -27,64 +29,64 @@ Jevの接続設定は [`plugins/codex-jev/config.json`](plugins/codex-jev/config
 }
 ```
 
-`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。現在の `.mcp.json` も `TYPESAFE_API_KEY` をCodexからMCPプロセスへ渡す設定なので、環境変数名を変える場合は両方を合わせる必要があります。
+`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. The current `.mcp.json` also forwards `TYPESAFE_API_KEY` from Codex to the MCP process, so update both files if you change the variable name.
 
-## 開発
+## Development
 
-要件は Node.js 22 以降です。
+Requires Node.js 22 or later.
 
 ```powershell
 npm install
 npm run check
 ```
 
-ビルド成果物は `plugins/codex-jev/dist/server.mjs` に単一ファイルとして生成されます。インストール先で `npm install` は不要です。
+The build produces a single bundled file at `plugins/codex-jev/dist/server.mjs`. Plugin users do not need to run `npm install`.
 
-## Codexへ追加
+## Install in Codex
 
-公開リポジトリをマーケットプレイスとして追加します。
+Add this repository as a plugin marketplace, then install the plugin.
 
 ```powershell
 codex plugin marketplace add https://github.com/nomper/codex-jev
 codex plugin add codex-jev@codex-jev
 ```
 
-TypeSafeのAPIキーは、Codexを起動する環境にだけ設定します。ソースや設定ファイルへ書きません。
+Set the TypeSafe API key only in the environment that launches Codex. Do not write it into source or configuration files.
 
 ```powershell
 $env:TYPESAFE_API_KEY = Read-Host 'TypeSafe API key' -MaskInput | ConvertFrom-SecureString -AsPlainText
 codex
 ```
 
-環境変数またはプラグインを変更した後は、新しいCodexタスクを開いてください。
+Open a new Codex task after changing the environment variable or plugin installation.
 
-## 入力例
+## Example input
 
 ```json
 {
-  "nextTopic": "GitHub Copilot版の構成を決める",
+  "nextTopic": "Decide how to package the GitHub Copilot version",
   "blocks": [
     {
       "id": "request-1",
       "role": "user",
-      "content": "なるべくシンプルな実装でお願いしたいです",
+      "content": "Keep the implementation as simple as possible.",
       "pin": true
     },
     {
       "id": "old-1",
       "role": "assistant",
-      "content": "完了済みの別件についての説明"
+      "content": "Discussion of an unrelated task that is already complete."
     },
     {
       "id": "todo-1",
       "role": "context",
-      "content": "GitHub Copilot版の検討文書を作る",
+      "content": "Prepare design notes for the GitHub Copilot version.",
       "status": "open"
     }
   ]
 }
 ```
 
-出力の `retained` が新しいタスクへ渡す原文です。`removed` は除外したID、理由、確率だけを返します。元の会話は正本として残してください。
+The `retained` output contains the exact blocks to pass to the new task. `removed` contains only excluded IDs, reasons, and probabilities. Keep the original conversation as the authoritative archive.
 
-GitHub Copilot版の検討は [docs/github-copilot.md](docs/github-copilot.md) にまとめています。
+The current GitHub Copilot portability notes are in [docs/github-copilot.md](docs/github-copilot.md) (Japanese).
