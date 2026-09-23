@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "jev_context": {
+      "command": "node",
+      "args": [
+        "./dist/server.mjs"
+      ],
+      "cwd": ".",
+      "env_vars": [
+        "TYPESAFE_API_KEY"
+      ],
+      "startup_timeout_sec": 10,
+      "tool_timeout_sec": 30
+    }
+  }
+}
