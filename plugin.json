@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "codex-jev",
-  "version": "0.2.1",
-  "description": "Use Jev or OpenRouter to select past conversation blocks needed for the next topic.",
+  "version": "0.2.2",
+  "description": "Use Jev directly or through OpenRouter to select past conversation blocks needed for the next topic.",
   "author": {
     "name": "nomper",
     "url": "https://github.com/nomper"

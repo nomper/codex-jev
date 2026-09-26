@@ -31,8 +31,8 @@
       "apiKeyEnv": "TYPESAFE_API_KEY"
     },
     "openrouter": {
-      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
-      "model": "openai/gpt-5.4-nano",
+      "endpoint": "https://openrouter.ai/api/alpha/decisions",
+      "model": "~typesafe/jev-latest",
       "apiKeyEnv": "OPENROUTER_API_KEY"
     }
   },
@@ -40,7 +40,7 @@
 }
 ```
 
-`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。最上位の `provider` が既定値です。インストール済みプラグインを編集せず切り替えるには、`CONTEXT_SELECTOR_PROVIDER` を `typesafe` または `openrouter` にします。必要なら `CONTEXT_SELECTOR_MODEL` に構造化出力対応モデルのslugを指定できます。ポータブル起動ラッパーは、対応する選択設定とキーだけをプロセス環境またはHermesの環境ファイルから読みます。
+`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。最上位の `provider` が既定値です。インストール済みプラグインを編集せず切り替えるには、`CONTEXT_SELECTOR_PROVIDER` を `typesafe` または `openrouter` にします。どちらもJevを使い、OpenRouterではDecisions APIと `~typesafe/jev-latest` エイリアスを呼びます。必要なら `CONTEXT_SELECTOR_MODEL=typesafe/jev-1.13` のようにJevのバージョンを固定できます。ポータブル起動ラッパーは、対応する選択設定とキーだけをプロセス環境またはHermesの環境ファイルから読みます。
 
 ## 開発
 
@@ -68,7 +68,7 @@ hermes plugins enable codex-jev
 # Windows: %LOCALAPPDATA%\hermes\.env
 # Linux/macOS: ~/.hermes/.env
 CONTEXT_SELECTOR_PROVIDER=typesafe
-# 任意: CONTEXT_SELECTOR_MODEL=openai/gpt-5.4-nano
+# 任意のJev固定版: CONTEXT_SELECTOR_MODEL=typesafe/jev-1.13
 TYPESAFE_API_KEY=実際のキーに置き換える
 # providerがopenrouterの場合だけ必要:
 OPENROUTER_API_KEY=実際のキーに置き換える

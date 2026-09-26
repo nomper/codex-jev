@@ -1,7 +1,7 @@
 {
   "name": "codex-jev",
-  "version": "0.2.1+codex.20260926010800",
-  "description": "Use Jev or OpenRouter to select past conversation blocks needed for the next topic.",
+  "version": "0.2.2+codex.20260926011500",
+  "description": "Use Jev directly or through OpenRouter to select past conversation blocks needed for the next topic.",
   "author": {
     "name": "nomper",
     "url": "https://github.com/nomper"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Codex Jev",
     "shortDescription": "Keep only context needed for the next topic",
-    "longDescription": "Creates a conservative handoff packet by using Jev or OpenRouter to select exact conversation blocks relevant to a stated next topic. It does not rewrite the active chat history.",
+    "longDescription": "Creates a conservative handoff packet by using Jev directly or through OpenRouter to select exact conversation blocks relevant to a stated next topic. It does not rewrite the active chat history.",
     "developerName": "nomper",
     "category": "Developer Tools",
     "capabilities": [
