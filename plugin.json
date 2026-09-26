@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "codex-jev",
+  "version": "0.1.0",
+  "description": "Use Jev to select past conversation blocks needed for the next topic.",
+  "author": {
+    "name": "nomper",
+    "url": "https://github.com/nomper"
+  },
+  "homepage": "https://github.com/nomper/codex-jev",
+  "repository": "https://github.com/nomper/codex-jev",
+  "license": "MIT",
+  "keywords": [
+    "hermes",
+    "jev",
+    "context",
+    "handoff"
+  ]
+}

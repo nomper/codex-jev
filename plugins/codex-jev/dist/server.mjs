@@ -21607,22 +21607,43 @@ var SECRET_PATTERNS = [
 function hasPossibleSecret(text) {
   return SECRET_PATTERNS.some((pattern) => pattern.test(text));
 }
+function contentMetrics(blocks) {
+  const chars = blocks.reduce((sum, block) => sum + block.content.length, 0);
+  const utf8Bytes = blocks.reduce((sum, block) => sum + Buffer.byteLength(block.content, "utf8"), 0);
+  return {
+    chars,
+    utf8Bytes,
+    estimatedTokens: Math.ceil(utf8Bytes / 4)
+  };
+}
+function buildStats(blocks, retained, requests) {
+  const original = contentMetrics(blocks);
+  const kept = contentMetrics(retained);
+  const estimatedTokensRemoved = Math.max(0, original.estimatedTokens - kept.estimatedTokens);
+  return {
+    inputBlocks: blocks.length,
+    retainedBlocks: retained.length,
+    removedBlocks: blocks.length - retained.length,
+    originalChars: original.chars,
+    retainedChars: kept.chars,
+    originalUtf8Bytes: original.utf8Bytes,
+    retainedUtf8Bytes: kept.utf8Bytes,
+    estimatedOriginalTokens: original.estimatedTokens,
+    estimatedRetainedTokens: kept.estimatedTokens,
+    estimatedTokensRemoved,
+    estimatedTokenReductionPercent: original.estimatedTokens === 0 ? 0 : Math.round(estimatedTokensRemoved / original.estimatedTokens * 1e3) / 10,
+    tokenEstimateMethod: "content_utf8_bytes_divided_by_4",
+    requests
+  };
+}
 function unchanged(nextTopic, blocks, reason, warning) {
-  const originalChars = blocks.reduce((sum, block) => sum + block.content.length, 0);
   return {
     status: "unchanged",
     reason,
     nextTopic,
     retained: blocks,
     removed: [],
-    stats: {
-      inputBlocks: blocks.length,
-      retainedBlocks: blocks.length,
-      removedBlocks: 0,
-      originalChars,
-      retainedChars: originalChars,
-      requests: 0
-    },
+    stats: buildStats(blocks, blocks, 0),
     ...warning ? { warning } : {}
   };
 }
@@ -21699,8 +21720,6 @@ async function curateContext({ nextTopic, blocks, dropThreshold = 0.9 }, { apiKe
   });
   const retained = blocks.filter((_, index) => keep.has(index));
   const removedFinal = removed.filter(({ id }) => !retained.some((block) => block.id === id));
-  const originalChars = blocks.reduce((sum, block) => sum + block.content.length, 0);
-  const retainedChars = retained.reduce((sum, block) => sum + block.content.length, 0);
   return {
     status: removedFinal.length > 0 ? "curated" : "unchanged",
     reason: removedFinal.length > 0 ? "selection_complete" : "nothing_removed",
@@ -21708,14 +21727,7 @@ async function curateContext({ nextTopic, blocks, dropThreshold = 0.9 }, { apiKe
     retained,
     removed: removedFinal,
     protected: [...protectedByIndex].map(([index, reason]) => ({ id: blocks[index].id, reason })),
-    stats: {
-      inputBlocks: blocks.length,
-      retainedBlocks: retained.length,
-      removedBlocks: removedFinal.length,
-      originalChars,
-      retainedChars,
-      requests: 1
-    },
+    stats: buildStats(blocks, retained, 1),
     jev: {
       model: result.response.model,
       requestId: result.requestId,

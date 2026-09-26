@@ -20,20 +20,23 @@
 
 Agent Plugins 1.0 はスキルとMCPサーバーを標準コンポーネントとして扱うため、この用途に合う。VS Code公式文書も、繰り返し手順にはAgent Skills、外部APIにはMCPを使う構成を案内している。
 
-## 想定レイアウト
+## 現在のポータブルレイアウト
 
 ```text
-codex-jev-copilot/
+codex-jev/
   plugin.json
   skills/
     jev-context-handoff/
       SKILL.md
   mcp.json
-  dist/
-    server.mjs
+  scripts/
+    hermes-server.mjs
+  plugins/
+    codex-jev/
+      dist/server.mjs
 ```
 
-`dist/server.mjs` はCodex版と同じビルド成果物を使う。Copilot固有の機能が必要になるまで `com.github.copilot/` は作らない。
+リポジトリ直下はAgent Plugins 1.0形式として実装済みで、Hermes版がCodex版と同じ `dist/server.mjs` を使う。GitHub Copilotへの読み込み検証は未実施であり、Copilot固有の機能が必要になるまで `com.github.copilot/` は作らない。
 
 ## 採用しない初期案
 

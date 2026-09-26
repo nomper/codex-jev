@@ -2,7 +2,7 @@
 
 [English](README.md) | **日本語**
 
-次に扱う話題との関連性で過去の会話を選別し、新しいタスクへ渡す小さな handoff を作る Codex プラグインです。
+次に扱う話題との関連性で過去の会話を選別し、新しいタスクへ渡す小さな handoff を作る、Codex・Hermes対応のポータブルAgent Pluginです。
 
 これは `/compact` のような会話全体の要約ではありません。ユーザーが指定した `nextTopic` に必要な原文ブロックを残し、明確に不要なブロックだけを除外します。現在のチャット履歴自体は変更しません。
 
@@ -15,6 +15,7 @@
 - Jevの `drop` 確率が既定で0.9以上の場合だけ除外
 - APIキー未設定、通信失敗、不正な応答では全件保持
 - 残した本文は原文・元の順序を維持
+- 選別前後の本文概算トークン数と概算削減率を返す
 
 ## Jev設定
 
@@ -29,7 +30,7 @@ Jevの接続設定は [`plugins/codex-jev/config.json`](plugins/codex-jev/config
 }
 ```
 
-`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。現在の `.mcp.json` も `TYPESAFE_API_KEY` をCodexからMCPプロセスへ渡す設定なので、環境変数名を変える場合は両方を合わせる必要があります。
+`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。Codexは `plugins/codex-jev/.mcp.json` を通じて環境変数をMCPプロセスへ渡し、Hermes用の起動ラッパーは `~/.hermes/.env` からこの設定で指定されたキーだけを読みます。変数名を変える場合はCodex側のMCP設定と `.env.example` も合わせてください。
 
 ## 開発
 
@@ -40,7 +41,25 @@ npm install
 npm run check
 ```
 
-ビルド成果物は `plugins/codex-jev/dist/server.mjs` に単一ファイルとして生成されます。インストール先で `npm install` は不要です。
+ビルド成果物は `plugins/codex-jev/dist/server.mjs` に単一ファイルとして生成されます。両ホストが同じファイルを使い、インストール先で `npm install` は不要です。
+
+## Hermesへ追加
+
+Hermes Agent 0.21.3以降とNode.js 22以降が必要です。
+
+```powershell
+hermes plugins install nomper/codex-jev --no-enable
+hermes plugins enable codex-jev
+```
+
+TypeSafeのAPIキーはHermesの環境ファイルへ追加します。`mcp.json`やGit管理対象のファイルには書かないでください。
+
+```dotenv
+# ~/.hermes/.env
+TYPESAFE_API_KEY=実際のキーに置き換える
+```
+
+プラグインを有効化した後、またはキーを変更した後は、新しいHermesセッションを開始してください。ポータブルスキルは、必要に応じてHermesのセッション検索から過去の原文を取得してから `curate_context` を呼び出せます。
 
 ## Codexへ追加
 
@@ -87,6 +106,6 @@ codex
 }
 ```
 
-出力の `retained` が新しいタスクへ渡す原文です。`removed` は除外したID、理由、確率だけを返します。元の会話は正本として残してください。
+出力の `retained` が新しいタスクへ渡す原文です。`removed` は除外したID、理由、確率だけを返します。`stats` の `estimatedOriginalTokens` から `estimatedRetainedTokens` への変化と削減率で効果を確認できます。この値は本文のみを対象にしたモデル非依存の概算（UTF-8バイト数÷4）であり、各モデル固有tokenizerの厳密値ではありません。元の会話は正本として残してください。
 
 GitHub Copilot版の検討は [docs/github-copilot.md](docs/github-copilot.md) にまとめています。

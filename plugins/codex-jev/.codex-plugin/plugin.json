@@ -1,6 +1,6 @@
 {
   "name": "codex-jev",
-  "version": "0.1.0+codex.20260923041110",
+  "version": "0.1.0+codex.20260926003132",
   "description": "Use Jev to select past conversation blocks needed for the next topic.",
   "author": {
     "name": "nomper",

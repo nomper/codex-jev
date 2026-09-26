@@ -14,6 +14,9 @@ test("missing key keeps every block", async () => {
   assert.equal(result.reason, "missing_api_key");
   assert.deepEqual(result.retained, blocks);
   assert.equal(result.stats.requests, 0);
+  assert.equal(result.stats.estimatedOriginalTokens, result.stats.estimatedRetainedTokens);
+  assert.equal(result.stats.estimatedTokenReductionPercent, 0);
+  assert.equal(result.stats.tokenEstimateMethod, "content_utf8_bytes_divided_by_4");
 });
 
 test("drops only high-probability unrelated blocks", async () => {
@@ -38,6 +41,8 @@ test("drops only high-probability unrelated blocks", async () => {
   assert.deepEqual(result.retained.map((block) => block.id), ["decision", "open"]);
   assert.deepEqual(result.removed.map((item) => item.id), ["old"]);
   assert.equal(result.stats.requests, 1);
+  assert.ok(result.stats.estimatedRetainedTokens < result.stats.estimatedOriginalTokens);
+  assert.ok(result.stats.estimatedTokenReductionPercent > 0);
 });
 
 test("uncertain drop stays in the handoff", async () => {

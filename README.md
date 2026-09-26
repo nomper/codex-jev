@@ -2,7 +2,7 @@
 
 **English** | [日本語](README.ja.md)
 
-A Codex plugin that selects past conversation blocks relevant to the next topic and builds a compact handoff for a new task.
+A portable Agent Plugin for Codex and Hermes that selects past conversation blocks relevant to the next topic and builds a compact handoff for a new task.
 
 This is not a general-purpose summary like `/compact`. It keeps exact source blocks needed for the user-supplied `nextTopic` and removes only blocks that are clearly unnecessary. It does not modify the active chat history.
 
@@ -15,6 +15,7 @@ This is not a general-purpose summary like `/compact`. It keeps exact source blo
 - Removes a block only when Jev's `drop` probability is at least 0.9 by default
 - Preserves every block when the API key is missing, the request fails, or the response is invalid
 - Keeps retained text verbatim and in its original order
+- Reports content-only estimated tokens before and after selection, plus the estimated reduction percentage
 
 ## Jev configuration
 
@@ -29,7 +30,7 @@ Jev connection settings live in [`plugins/codex-jev/config.json`](plugins/codex-
 }
 ```
 
-`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. The current `.mcp.json` also forwards `TYPESAFE_API_KEY` from Codex to the MCP process, so update both files if you change the variable name.
+`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. Codex forwards the variable through `plugins/codex-jev/.mcp.json`; the Hermes launcher reads only the key named by this configuration from `~/.hermes/.env`. If you rename the variable, update the Codex MCP configuration and `.env.example` too.
 
 ## Development
 
@@ -40,7 +41,25 @@ npm install
 npm run check
 ```
 
-The build produces a single bundled file at `plugins/codex-jev/dist/server.mjs`. Plugin users do not need to run `npm install`.
+The build produces a single bundled file at `plugins/codex-jev/dist/server.mjs`. Both hosts reuse it, and plugin users do not need to run `npm install`.
+
+## Install in Hermes
+
+Hermes Agent 0.21.3 or later and Node.js 22 or later are required.
+
+```powershell
+hermes plugins install nomper/codex-jev --no-enable
+hermes plugins enable codex-jev
+```
+
+Add the TypeSafe key to the Hermes environment file. Do not add it to `mcp.json` or any committed file.
+
+```dotenv
+# ~/.hermes/.env
+TYPESAFE_API_KEY=replace-with-your-key
+```
+
+Start a new Hermes session after enabling the plugin or changing the key. The portable skill can use Hermes session search for older exact turns before it calls `curate_context`.
 
 ## Install in Codex
 
@@ -87,6 +106,6 @@ Open a new Codex task after changing the environment variable or plugin installa
 }
 ```
 
-The `retained` output contains the exact blocks to pass to the new task. `removed` contains only excluded IDs, reasons, and probabilities. Keep the original conversation as the authoritative archive.
+The `retained` output contains the exact blocks to pass to the new task. `removed` contains only excluded IDs, reasons, and probabilities. `stats` reports the estimated change from `estimatedOriginalTokens` to `estimatedRetainedTokens` and the reduction percentage. The estimate is content-only and model-independent (`UTF-8 bytes / 4`), so it is useful for comparison but is not an exact provider tokenizer count. Keep the original conversation as the authoritative archive.
 
 The current GitHub Copilot portability notes are in [docs/github-copilot.md](docs/github-copilot.md) (Japanese).
