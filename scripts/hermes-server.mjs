@@ -15,6 +15,9 @@ if (!/^[A-Z][A-Z0-9_]{1,63}$/.test(config.apiKeyEnv)) {
 if (process.env[config.apiKeyEnv] === undefined) {
   const envFiles = [
     process.env.HERMES_HOME ? join(process.env.HERMES_HOME, ".env") : undefined,
+    process.platform === "win32" && process.env.LOCALAPPDATA
+      ? join(process.env.LOCALAPPDATA, "hermes", ".env")
+      : undefined,
     join(homedir(), ".hermes", ".env"),
   ].filter(Boolean);
 

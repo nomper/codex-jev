@@ -30,7 +30,7 @@ Jev connection settings live in [`plugins/codex-jev/config.json`](plugins/codex-
 }
 ```
 
-`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. Codex forwards the variable through `plugins/codex-jev/.mcp.json`; the Hermes launcher reads only the key named by this configuration from `~/.hermes/.env`. If you rename the variable, update the Codex MCP configuration and `.env.example` too.
+`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. Codex forwards the variable through `plugins/codex-jev/.mcp.json`; the portable launcher reads only the key named by this configuration from the process environment or the Hermes environment file. If you rename the variable, update the Codex MCP configuration and `.env.example` too.
 
 ## Development
 
@@ -55,11 +55,22 @@ hermes plugins enable codex-jev
 Add the TypeSafe key to the Hermes environment file. Do not add it to `mcp.json` or any committed file.
 
 ```dotenv
-# ~/.hermes/.env
+# Windows: %LOCALAPPDATA%\hermes\.env
+# Linux/macOS: ~/.hermes/.env
 TYPESAFE_API_KEY=replace-with-your-key
 ```
 
 Start a new Hermes session after enabling the plugin or changing the key. The portable skill can use Hermes session search for older exact turns before it calls `curate_context`.
+
+## Install in GitHub Copilot for VS Code
+
+Enable the `chat.plugins.enabled` setting. Then run **Chat: Install Plugin From Source** from the Command Palette and enter:
+
+```text
+https://github.com/nomper/codex-jev
+```
+
+For local development, you can instead add this repository path to the `chat.pluginLocations` setting with the value `true`. Start a new chat after installing or updating the plugin. The launcher uses `TYPESAFE_API_KEY` from the VS Code process when available and otherwise checks the same Hermes environment file shown above.
 
 ## Install in Codex
 

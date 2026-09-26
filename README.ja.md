@@ -30,7 +30,7 @@ Jevの接続設定は [`plugins/codex-jev/config.json`](plugins/codex-jev/config
 }
 ```
 
-`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。Codexは `plugins/codex-jev/.mcp.json` を通じて環境変数をMCPプロセスへ渡し、Hermes用の起動ラッパーは `~/.hermes/.env` からこの設定で指定されたキーだけを読みます。変数名を変える場合はCodex側のMCP設定と `.env.example` も合わせてください。
+`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。Codexは `plugins/codex-jev/.mcp.json` を通じて環境変数をMCPプロセスへ渡し、ポータブル起動ラッパーはプロセス環境またはHermesの環境ファイルから、この設定で指定されたキーだけを読みます。変数名を変える場合はCodex側のMCP設定と `.env.example` も合わせてください。
 
 ## 開発
 
@@ -55,11 +55,22 @@ hermes plugins enable codex-jev
 TypeSafeのAPIキーはHermesの環境ファイルへ追加します。`mcp.json`やGit管理対象のファイルには書かないでください。
 
 ```dotenv
-# ~/.hermes/.env
+# Windows: %LOCALAPPDATA%\hermes\.env
+# Linux/macOS: ~/.hermes/.env
 TYPESAFE_API_KEY=実際のキーに置き換える
 ```
 
 プラグインを有効化した後、またはキーを変更した後は、新しいHermesセッションを開始してください。ポータブルスキルは、必要に応じてHermesのセッション検索から過去の原文を取得してから `curate_context` を呼び出せます。
+
+## GitHub Copilot for VS Codeへ追加
+
+VS Codeの `chat.plugins.enabled` 設定を有効にします。続いてコマンドパレットから **Chat: Install Plugin From Source** を実行し、次のURLを入力します。
+
+```text
+https://github.com/nomper/codex-jev
+```
+
+ローカル開発では、代わりにこのリポジトリのパスを `chat.pluginLocations` へ値 `true` で追加できます。インストールまたは更新後は新しいチャットを開始してください。起動ラッパーは、VS Codeプロセスの `TYPESAFE_API_KEY` を優先し、なければ上記と同じHermes環境ファイルを確認します。
 
 ## Codexへ追加
 
