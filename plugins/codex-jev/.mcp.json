@@ -8,7 +8,9 @@
       "cwd": ".",
       "env_vars": [
         "TYPESAFE_API_KEY",
-        "OPENROUTER_API_KEY"
+        "OPENROUTER_API_KEY",
+        "CONTEXT_SELECTOR_PROVIDER",
+        "CONTEXT_SELECTOR_MODEL"
       ],
       "startup_timeout_sec": 10,
       "tool_timeout_sec": 30

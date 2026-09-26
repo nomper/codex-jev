@@ -1,6 +1,6 @@
 {
   "name": "codex-jev",
-  "version": "0.2.0+codex.20260926010500",
+  "version": "0.2.1+codex.20260926010800",
   "description": "Use Jev or OpenRouter to select past conversation blocks needed for the next topic.",
   "author": {
     "name": "nomper",

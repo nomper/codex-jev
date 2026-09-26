@@ -40,7 +40,7 @@ Provider connection settings live in [`plugins/codex-jev/config.json`](plugins/c
 }
 ```
 
-`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. To switch providers, change only the top-level `provider`; you can also replace the OpenRouter model slug with another model that supports structured output. Codex forwards both supported key variables through `plugins/codex-jev/.mcp.json`; the portable launcher reads only the key selected by the active provider from the process environment or the Hermes environment file.
+`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. The top-level `provider` is the default. Override it without modifying the installed plugin by setting `CONTEXT_SELECTOR_PROVIDER` to `typesafe` or `openrouter`; optionally set `CONTEXT_SELECTOR_MODEL` to a structured-output-capable model slug. The portable launcher reads only supported selector settings and provider keys from the process environment or the Hermes environment file.
 
 ## Development
 
@@ -67,6 +67,8 @@ Add the selected provider's key to the Hermes environment file. Do not add it to
 ```dotenv
 # Windows: %LOCALAPPDATA%\hermes\.env
 # Linux/macOS: ~/.hermes/.env
+CONTEXT_SELECTOR_PROVIDER=typesafe
+# Optional: CONTEXT_SELECTOR_MODEL=openai/gpt-5.4-nano
 TYPESAFE_API_KEY=replace-with-your-key
 # Required only when provider is openrouter:
 OPENROUTER_API_KEY=replace-with-your-key

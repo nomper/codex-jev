@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "Portable conversation-context selection plugin for GitHub Copilot, Codex, and Hermes.",
-    "version": "0.2.0"
+    "version": "0.2.1"
   },
   "plugins": [
     {
       "name": "codex-jev",
       "description": "Use Jev or OpenRouter to select past conversation blocks needed for the next topic.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "source": "."
     }
   ]

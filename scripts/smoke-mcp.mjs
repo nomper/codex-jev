@@ -1,10 +1,16 @@
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 
-async function smoke(entrypoint) {
+async function smoke(entrypoint, provider) {
   const child = spawn(process.execPath, [entrypoint], {
     cwd: process.cwd(),
-    env: { ...process.env, TYPESAFE_API_KEY: "" },
+    env: {
+      ...process.env,
+      CONTEXT_SELECTOR_PROVIDER: provider,
+      CONTEXT_SELECTOR_MODEL: "",
+      TYPESAFE_API_KEY: "",
+      OPENROUTER_API_KEY: "",
+    },
     stdio: ["pipe", "pipe", "pipe"],
     windowsHide: true,
   });
@@ -44,14 +50,14 @@ async function smoke(entrypoint) {
       },
     });
     const initialized = await receive();
-    if (!initialized.result?.serverInfo) throw new Error(`MCP initialize failed for ${entrypoint}`);
+    if (!initialized.result?.serverInfo) throw new Error(`MCP initialize failed for ${entrypoint} (${provider})`);
 
     send({ jsonrpc: "2.0", method: "notifications/initialized" });
     send({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
     const listed = await receive();
     const names = listed.result?.tools?.map((tool) => tool.name) ?? [];
     if (names.length !== 1 || names[0] !== "curate_context") {
-      throw new Error(`Unexpected tool list for ${entrypoint}`);
+      throw new Error(`Unexpected tool list for ${entrypoint} (${provider})`);
     }
 
     send({
@@ -69,7 +75,7 @@ async function smoke(entrypoint) {
     const called = await receive();
     const result = JSON.parse(called.result.content[0].text);
     if (result.reason !== "missing_api_key" || result.retained.length !== 1) {
-      throw new Error(`Fail-safe behavior failed for ${entrypoint}`);
+      throw new Error(`Fail-safe behavior failed for ${entrypoint} (${provider})`);
     }
   } finally {
     child.stdin.end();
@@ -77,6 +83,8 @@ async function smoke(entrypoint) {
   }
 }
 
-await smoke("plugins/codex-jev/dist/server.mjs");
-await smoke("scripts/hermes-server.mjs");
-console.error("Codex and Hermes MCP smoke tests passed");
+for (const provider of ["typesafe", "openrouter"]) {
+  await smoke("plugins/codex-jev/dist/server.mjs", provider);
+  await smoke("scripts/hermes-server.mjs", provider);
+}
+console.error("Codex and Hermes MCP smoke tests passed for TypeSafe and OpenRouter");

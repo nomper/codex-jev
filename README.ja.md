@@ -40,7 +40,7 @@
 }
 ```
 
-`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。切り替えるときは最上位の `provider` だけを変更します。OpenRouterの `model` は、構造化出力に対応する別のモデルslugへ変更できます。Codexは両方のキー変数をMCPプロセスへ渡し、ポータブル起動ラッパーは選択中のプロバイダーに必要なキーだけをプロセス環境またはHermesの環境ファイルから読みます。
+`apiKeyEnv` はキーの値ではなく、キーを読む環境変数名です。実際のAPIキーは設定ファイルへ保存しません。最上位の `provider` が既定値です。インストール済みプラグインを編集せず切り替えるには、`CONTEXT_SELECTOR_PROVIDER` を `typesafe` または `openrouter` にします。必要なら `CONTEXT_SELECTOR_MODEL` に構造化出力対応モデルのslugを指定できます。ポータブル起動ラッパーは、対応する選択設定とキーだけをプロセス環境またはHermesの環境ファイルから読みます。
 
 ## 開発
 
@@ -67,6 +67,8 @@ hermes plugins enable codex-jev
 ```dotenv
 # Windows: %LOCALAPPDATA%\hermes\.env
 # Linux/macOS: ~/.hermes/.env
+CONTEXT_SELECTOR_PROVIDER=typesafe
+# 任意: CONTEXT_SELECTOR_MODEL=openai/gpt-5.4-nano
 TYPESAFE_API_KEY=実際のキーに置き換える
 # providerがopenrouterの場合だけ必要:
 OPENROUTER_API_KEY=実際のキーに置き換える
