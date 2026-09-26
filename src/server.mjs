@@ -7,19 +7,25 @@ import { curateContext } from "./curate.mjs";
 async function loadRuntimeConfig() {
   const configUrl = new URL("../config.json", import.meta.url);
   const config = JSON.parse(await readFile(configUrl, "utf8"));
-  const endpoint = new URL(config.endpoint);
+  if (!(["typesafe", "openrouter"].includes(config.provider))) {
+    throw new Error("config.provider must be typesafe or openrouter.");
+  }
+  const selectedProvider = config.providers?.[config.provider];
+  if (!selectedProvider) throw new Error(`config.providers.${config.provider} is required.`);
+  const endpoint = new URL(selectedProvider.endpoint);
 
   if (endpoint.protocol !== "https:") throw new Error("config.endpoint must use HTTPS.");
-  if (typeof config.model !== "string" || config.model.length === 0) throw new Error("config.model is required.");
-  if (!/^[A-Z][A-Z0-9_]{1,63}$/.test(config.apiKeyEnv)) throw new Error("config.apiKeyEnv is invalid.");
+  if (typeof selectedProvider.model !== "string" || selectedProvider.model.length === 0) throw new Error("config.model is required.");
+  if (!/^[A-Z][A-Z0-9_]{1,63}$/.test(selectedProvider.apiKeyEnv)) throw new Error("config.apiKeyEnv is invalid.");
   if (!Number.isInteger(config.timeoutMs) || config.timeoutMs < 1000 || config.timeoutMs > 30000) {
     throw new Error("config.timeoutMs must be an integer from 1000 through 30000.");
   }
 
   return {
+    provider: config.provider,
     endpoint: endpoint.toString(),
-    model: config.model,
-    apiKeyEnv: config.apiKeyEnv,
+    model: selectedProvider.model,
+    apiKeyEnv: selectedProvider.apiKeyEnv,
     timeoutMs: config.timeoutMs,
   };
 }
@@ -68,9 +74,12 @@ function createServer() {
     async (input) => {
       const result = await curateContext(input, {
         apiKey: process.env[runtimeConfig.apiKeyEnv],
+        apiKeyEnv: runtimeConfig.apiKeyEnv,
         jevOptions: {
+          provider: runtimeConfig.provider,
           endpoint: runtimeConfig.endpoint,
           model: runtimeConfig.model,
+          apiKeyEnv: runtimeConfig.apiKeyEnv,
           timeoutMs: runtimeConfig.timeoutMs,
         },
       });

@@ -5,14 +5,15 @@ import { parseEnv } from "node:util";
 
 const configUrl = new URL("../plugins/codex-jev/config.json", import.meta.url);
 const config = JSON.parse(await readFile(configUrl, "utf8"));
+const selectedProvider = config.providers?.[config.provider] ?? config;
 
-if (!/^[A-Z][A-Z0-9_]{1,63}$/.test(config.apiKeyEnv)) {
+if (!/^[A-Z][A-Z0-9_]{1,63}$/.test(selectedProvider.apiKeyEnv)) {
   throw new Error("config.apiKeyEnv is invalid.");
 }
 
 // Hermes intentionally filters ambient secrets from stdio MCP processes. Read
-// only the configured Jev key from its documented per-user .env file instead.
-if (process.env[config.apiKeyEnv] === undefined) {
+// only the selected provider's key from its documented per-user .env file.
+if (process.env[selectedProvider.apiKeyEnv] === undefined) {
   const envFiles = [
     process.env.HERMES_HOME ? join(process.env.HERMES_HOME, ".env") : undefined,
     process.platform === "win32" && process.env.LOCALAPPDATA
@@ -24,9 +25,9 @@ if (process.env[config.apiKeyEnv] === undefined) {
   for (const envFile of new Set(envFiles)) {
     try {
       const parsed = parseEnv((await readFile(envFile, "utf8")).replace(/^\uFEFF/, ""));
-      const value = parsed[config.apiKeyEnv];
+      const value = parsed[selectedProvider.apiKeyEnv];
       if (typeof value === "string" && value.length > 0) {
-        process.env[config.apiKeyEnv] = value;
+        process.env[selectedProvider.apiKeyEnv] = value;
         break;
       }
     } catch (error) {

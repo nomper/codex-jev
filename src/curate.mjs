@@ -95,10 +95,15 @@ function buildRequest(nextTopic, candidates) {
 
 export async function curateContext(
   { nextTopic, blocks, dropThreshold = 0.9 },
-  { apiKey = process.env.TYPESAFE_API_KEY, jev = callJev, jevOptions = {} } = {},
+  {
+    apiKey = process.env.TYPESAFE_API_KEY,
+    apiKeyEnv = "TYPESAFE_API_KEY",
+    jev = callJev,
+    jevOptions = {},
+  } = {},
 ) {
   if (!apiKey) {
-    return unchanged(nextTopic, blocks, "missing_api_key", "TYPESAFE_API_KEY is not configured; nothing was removed.");
+    return unchanged(nextTopic, blocks, "missing_api_key", `${apiKeyEnv} is not configured; nothing was removed.`);
   }
 
   const protectedByIndex = new Map();
@@ -154,6 +159,7 @@ export async function curateContext(
     protected: [...protectedByIndex].map(([index, reason]) => ({ id: blocks[index].id, reason })),
     stats: buildStats(blocks, retained, 1),
     jev: {
+      provider: result.provider ?? jevOptions.provider ?? "typesafe",
       model: result.response.model,
       requestId: result.requestId,
       latencyMs: result.latencyMs,

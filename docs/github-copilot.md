@@ -4,19 +4,19 @@
 
 最初の対象は独立版の **GitHub Copilot App** にする。構成は **Agent Skill + ローカルMCPサーバー** が最小で、Codex版・Hermes版の選別ロジックをそのまま再利用できる。
 
-スキルだけではTypeSafe APIの呼び出しや応答検証を決定的に実装できない。逆に、専用Custom AgentやHookは初版には不要である。
+スキルだけでは外部APIの呼び出しや応答検証を決定的に実装できない。逆に、専用Custom AgentやHookは初版には不要である。
 
 ## Codex版との対応
 
 | 役割 | Codex版 | Copilot版候補 |
 | --- | --- | --- |
 | 呼び出し手順 | `skills/.../SKILL.md` | `skills/.../SKILL.md` |
-| Jev呼び出し | ローカルMCP | 同じローカルMCP |
+| 選別API呼び出し | ローカルMCP | 同じローカルMCP |
 | 配布 | Codex marketplace | Agent Plugins 1.0 |
-| APIキー | 起動環境の `TYPESAFE_API_KEY` | プロセス環境、またはHermesと共用するローカル `.env` |
+| APIキー | 選択中プロバイダーの環境変数 | プロセス環境、またはHermesと共用するローカル `.env` |
 | 出力 | 新しいタスク用handoff | 新しいチャット／作業用handoff |
 
-エンドポイント、モデル名、APIキーを読む環境変数名、タイムアウトは共通の `config.json` から読む。APIキーの値そのものはファイルへ保存しない。
+プロバイダー、エンドポイント、モデル名、APIキーを読む環境変数名、タイムアウトは共通の `config.json` から読む。`typesafe`（Jev直結）と `openrouter` を選択できるが、APIキーの値そのものはファイルへ保存しない。
 
 Agent Plugins 1.0 はスキルとMCPサーバーを標準コンポーネントとして扱い、GitHub Copilot Appでも正式にサポートされているため、この用途に合う。Copilot固有のCustom AgentやHookは現時点では不要である。
 

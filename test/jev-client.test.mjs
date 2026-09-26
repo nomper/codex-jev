@@ -85,3 +85,55 @@ test("uses the configured endpoint and model", async () => {
   assert.equal(capturedUrl, "https://example.invalid/v1/systemone");
   assert.equal(capturedBody.model, "jev-custom");
 });
+
+test("uses OpenRouter chat completions with structured output", async () => {
+  let capturedUrl;
+  let capturedHeaders;
+  let capturedBody;
+  const fetchImpl = async (url, options) => {
+    capturedUrl = url;
+    capturedHeaders = options.headers;
+    capturedBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: () => "or_req_test" },
+      json: async () => ({
+        model: "openai/gpt-5.4-nano",
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              answers: {
+                relevant: {
+                  type: "choice",
+                  choice: "keep",
+                  confidence: 0.95,
+                  probabilities: { keep: 0.95, drop: 0.05 },
+                },
+              },
+            }),
+          },
+        }],
+        usage: { prompt_tokens: 10, completion_tokens: 5 },
+      }),
+    };
+  };
+
+  const result = await callJev({
+    provider: "openrouter",
+    apiKey: "test-openrouter-key",
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    model: "openai/gpt-5.4-nano",
+    state: { next_topic: "test", candidates: [] },
+    questions,
+    fetchImpl,
+  });
+
+  assert.equal(capturedUrl, "https://openrouter.ai/api/v1/chat/completions");
+  assert.equal(capturedHeaders.Authorization, "Bearer test-openrouter-key");
+  assert.equal(capturedBody.model, "openai/gpt-5.4-nano");
+  assert.equal(capturedBody.response_format.type, "json_schema");
+  assert.equal(capturedBody.provider.require_parameters, true);
+  assert.equal(result.provider, "openrouter");
+  assert.equal(result.response.usage.input_tokens, 10);
+});

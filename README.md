@@ -17,20 +17,30 @@ This is not a general-purpose summary like `/compact`. It keeps exact source blo
 - Keeps retained text verbatim and in its original order
 - Reports content-only estimated tokens before and after selection, plus the estimated reduction percentage
 
-## Jev configuration
+## Provider configuration
 
-Jev connection settings live in [`plugins/codex-jev/config.json`](plugins/codex-jev/config.json).
+Provider connection settings live in [`plugins/codex-jev/config.json`](plugins/codex-jev/config.json). Set `provider` to `typesafe` for the direct Jev API or `openrouter` for OpenRouter.
 
 ```json
 {
-  "endpoint": "https://api.typesafe.ai/v1/systemone",
-  "model": "jev-latest",
-  "apiKeyEnv": "TYPESAFE_API_KEY",
+  "provider": "typesafe",
+  "providers": {
+    "typesafe": {
+      "endpoint": "https://api.typesafe.ai/v1/systemone",
+      "model": "jev-latest",
+      "apiKeyEnv": "TYPESAFE_API_KEY"
+    },
+    "openrouter": {
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "model": "openai/gpt-5.4-nano",
+      "apiKeyEnv": "OPENROUTER_API_KEY"
+    }
+  },
   "timeoutMs": 15000
 }
 ```
 
-`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. Codex forwards the variable through `plugins/codex-jev/.mcp.json`; the portable launcher reads only the key named by this configuration from the process environment or the Hermes environment file. If you rename the variable, update the Codex MCP configuration and `.env.example` too.
+`apiKeyEnv` is the name of the environment variable, not the API key itself. The actual key is never stored in this configuration file. To switch providers, change only the top-level `provider`; you can also replace the OpenRouter model slug with another model that supports structured output. Codex forwards both supported key variables through `plugins/codex-jev/.mcp.json`; the portable launcher reads only the key selected by the active provider from the process environment or the Hermes environment file.
 
 ## Development
 
@@ -52,12 +62,14 @@ hermes plugins install nomper/codex-jev --no-enable
 hermes plugins enable codex-jev
 ```
 
-Add the TypeSafe key to the Hermes environment file. Do not add it to `mcp.json` or any committed file.
+Add the selected provider's key to the Hermes environment file. Do not add it to `mcp.json` or any committed file.
 
 ```dotenv
 # Windows: %LOCALAPPDATA%\hermes\.env
 # Linux/macOS: ~/.hermes/.env
 TYPESAFE_API_KEY=replace-with-your-key
+# Required only when provider is openrouter:
+OPENROUTER_API_KEY=replace-with-your-key
 ```
 
 Start a new Hermes session after enabling the plugin or changing the key. The portable skill can use Hermes session search for older exact turns before it calls `curate_context`.
@@ -71,7 +83,7 @@ This section is for the standalone GitHub Copilot app, not the VS Code extension
 3. Enter `nomper/codex-jev` and confirm.
 4. Find `codex-jev` in that marketplace and choose **Install**.
 
-Start a new Copilot session after installing or updating the plugin. On Windows, the launcher can read `TYPESAFE_API_KEY` from the same `%LOCALAPPDATA%\hermes\.env` file shown above, so one local secret configuration can serve both Copilot app and Hermes.
+Start a new Copilot session after installing or updating the plugin. On Windows, the launcher can read the selected provider key from the same `%LOCALAPPDATA%\hermes\.env` file shown above, so one local secret configuration can serve both Copilot app and Hermes.
 
 ## Install in Codex
 
@@ -82,7 +94,7 @@ codex plugin marketplace add https://github.com/nomper/codex-jev
 codex plugin add codex-jev@codex-jev
 ```
 
-Set the TypeSafe API key only in the environment that launches Codex. Do not write it into source or configuration files.
+Set the selected provider's API key only in the environment that launches Codex. Do not write it into source or configuration files. The following example is for the default `typesafe` provider; use `OPENROUTER_API_KEY` when `provider` is `openrouter`.
 
 ```powershell
 $env:TYPESAFE_API_KEY = Read-Host 'TypeSafe API key' -MaskInput | ConvertFrom-SecureString -AsPlainText
