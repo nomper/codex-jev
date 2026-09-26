@@ -2,7 +2,7 @@
 
 **English** | [日本語](README.ja.md)
 
-A portable Agent Plugin for Codex and Hermes that selects past conversation blocks relevant to the next topic and builds a compact handoff for a new task.
+A portable Agent Plugin for GitHub Copilot app, Codex, and Hermes that selects past conversation blocks relevant to the next topic and builds a compact handoff for a new task.
 
 This is not a general-purpose summary like `/compact`. It keeps exact source blocks needed for the user-supplied `nextTopic` and removes only blocks that are clearly unnecessary. It does not modify the active chat history.
 
@@ -62,15 +62,16 @@ TYPESAFE_API_KEY=replace-with-your-key
 
 Start a new Hermes session after enabling the plugin or changing the key. The portable skill can use Hermes session search for older exact turns before it calls `curate_context`.
 
-## Install in GitHub Copilot for VS Code
+## Install in the GitHub Copilot app
 
-Enable the `chat.plugins.enabled` setting. Then run **Chat: Install Plugin From Source** from the Command Palette and enter:
+This section is for the standalone GitHub Copilot app, not the VS Code extension.
 
-```text
-https://github.com/nomper/codex-jev
-```
+1. Open **Customize**, then **Plugins**.
+2. Next to the marketplace selector, choose the option to add a marketplace.
+3. Enter `nomper/codex-jev` and confirm.
+4. Find `codex-jev` in that marketplace and choose **Install**.
 
-For local development, you can instead add this repository path to the `chat.pluginLocations` setting with the value `true`. Start a new chat after installing or updating the plugin. The launcher uses `TYPESAFE_API_KEY` from the VS Code process when available and otherwise checks the same Hermes environment file shown above.
+Start a new Copilot session after installing or updating the plugin. On Windows, the launcher can read `TYPESAFE_API_KEY` from the same `%LOCALAPPDATA%\hermes\.env` file shown above, so one local secret configuration can serve both Copilot app and Hermes.
 
 ## Install in Codex
 
@@ -119,4 +120,4 @@ Open a new Codex task after changing the environment variable or plugin installa
 
 The `retained` output contains the exact blocks to pass to the new task. `removed` contains only excluded IDs, reasons, and probabilities. `stats` reports the estimated change from `estimatedOriginalTokens` to `estimatedRetainedTokens` and the reduction percentage. The estimate is content-only and model-independent (`UTF-8 bytes / 4`), so it is useful for comparison but is not an exact provider tokenizer count. Keep the original conversation as the authoritative archive.
 
-The current GitHub Copilot portability notes are in [docs/github-copilot.md](docs/github-copilot.md) (Japanese).
+The GitHub Copilot app design notes are in [docs/github-copilot.md](docs/github-copilot.md) (Japanese).

@@ -1,0 +1,18 @@
+{
+  "name": "codex-jev",
+  "owner": {
+    "name": "nomper"
+  },
+  "metadata": {
+    "description": "Portable conversation-context selection plugin for GitHub Copilot, Codex, and Hermes.",
+    "version": "0.1.1"
+  },
+  "plugins": [
+    {
+      "name": "codex-jev",
+      "description": "Use Jev to select past conversation blocks needed for the next topic.",
+      "version": "0.1.1",
+      "source": "."
+    }
+  ]
+}

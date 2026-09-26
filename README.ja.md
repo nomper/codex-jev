@@ -2,7 +2,7 @@
 
 [English](README.md) | **日本語**
 
-次に扱う話題との関連性で過去の会話を選別し、新しいタスクへ渡す小さな handoff を作る、Codex・Hermes対応のポータブルAgent Pluginです。
+次に扱う話題との関連性で過去の会話を選別し、新しいタスクへ渡す小さな handoff を作る、GitHub Copilot App・Codex・Hermes対応のポータブルAgent Pluginです。
 
 これは `/compact` のような会話全体の要約ではありません。ユーザーが指定した `nextTopic` に必要な原文ブロックを残し、明確に不要なブロックだけを除外します。現在のチャット履歴自体は変更しません。
 
@@ -62,15 +62,16 @@ TYPESAFE_API_KEY=実際のキーに置き換える
 
 プラグインを有効化した後、またはキーを変更した後は、新しいHermesセッションを開始してください。ポータブルスキルは、必要に応じてHermesのセッション検索から過去の原文を取得してから `curate_context` を呼び出せます。
 
-## GitHub Copilot for VS Codeへ追加
+## GitHub Copilot Appへ追加
 
-VS Codeの `chat.plugins.enabled` 設定を有効にします。続いてコマンドパレットから **Chat: Install Plugin From Source** を実行し、次のURLを入力します。
+ここで扱うのは独立版のGitHub Copilot Appであり、VS Code拡張ではありません。
 
-```text
-https://github.com/nomper/codex-jev
-```
+1. **Customize**、**Plugins** の順に開きます。
+2. マーケットプレイス選択欄の横から、マーケットプレイスの追加を選びます。
+3. `nomper/codex-jev` を入力して確定します。
+4. 追加したマーケットプレイス内の `codex-jev` を選び、**Install** を押します。
 
-ローカル開発では、代わりにこのリポジトリのパスを `chat.pluginLocations` へ値 `true` で追加できます。インストールまたは更新後は新しいチャットを開始してください。起動ラッパーは、VS Codeプロセスの `TYPESAFE_API_KEY` を優先し、なければ上記と同じHermes環境ファイルを確認します。
+インストールまたは更新後は新しいCopilotセッションを開始してください。Windowsでは、起動ラッパーが上記と同じ `%LOCALAPPDATA%\hermes\.env` から `TYPESAFE_API_KEY` を読めるため、Copilot AppとHermesで1つのローカル秘密設定を共有できます。
 
 ## Codexへ追加
 
@@ -119,4 +120,4 @@ codex
 
 出力の `retained` が新しいタスクへ渡す原文です。`removed` は除外したID、理由、確率だけを返します。`stats` の `estimatedOriginalTokens` から `estimatedRetainedTokens` への変化と削減率で効果を確認できます。この値は本文のみを対象にしたモデル非依存の概算（UTF-8バイト数÷4）であり、各モデル固有tokenizerの厳密値ではありません。元の会話は正本として残してください。
 
-GitHub Copilot版の検討は [docs/github-copilot.md](docs/github-copilot.md) にまとめています。
+GitHub Copilot App版の検討は [docs/github-copilot.md](docs/github-copilot.md) にまとめています。

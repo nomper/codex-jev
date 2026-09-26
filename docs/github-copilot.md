@@ -2,7 +2,7 @@
 
 ## 結論
 
-最初の対象は GitHub Copilot in VS Code と Copilot CLI にする。構成は **Agent Skill + ローカルMCPサーバー** が最小で、Codex版の選別ロジックをそのまま再利用できる。
+最初の対象は独立版の **GitHub Copilot App** にする。構成は **Agent Skill + ローカルMCPサーバー** が最小で、Codex版・Hermes版の選別ロジックをそのまま再利用できる。
 
 スキルだけではTypeSafe APIの呼び出しや応答検証を決定的に実装できない。逆に、専用Custom AgentやHookは初版には不要である。
 
@@ -13,17 +13,18 @@
 | 呼び出し手順 | `skills/.../SKILL.md` | `skills/.../SKILL.md` |
 | Jev呼び出し | ローカルMCP | 同じローカルMCP |
 | 配布 | Codex marketplace | Agent Plugins 1.0 |
-| APIキー | 起動環境の `TYPESAFE_API_KEY` | VS Code / CLIを起動する環境の同名変数 |
+| APIキー | 起動環境の `TYPESAFE_API_KEY` | プロセス環境、またはHermesと共用するローカル `.env` |
 | 出力 | 新しいタスク用handoff | 新しいチャット／作業用handoff |
 
 エンドポイント、モデル名、APIキーを読む環境変数名、タイムアウトは共通の `config.json` から読む。APIキーの値そのものはファイルへ保存しない。
 
-Agent Plugins 1.0 はスキルとMCPサーバーを標準コンポーネントとして扱うため、この用途に合う。VS Code公式文書も、繰り返し手順にはAgent Skills、外部APIにはMCPを使う構成を案内している。
+Agent Plugins 1.0 はスキルとMCPサーバーを標準コンポーネントとして扱い、GitHub Copilot Appでも正式にサポートされているため、この用途に合う。Copilot固有のCustom AgentやHookは現時点では不要である。
 
 ## 現在のポータブルレイアウト
 
 ```text
 codex-jev/
+  .github/plugin/marketplace.json
   plugin.json
   skills/
     jev-context-handoff/
@@ -36,7 +37,13 @@ codex-jev/
       dist/server.mjs
 ```
 
-リポジトリ直下はAgent Plugins 1.0形式として実装済みで、Hermes版がCodex版と同じ `dist/server.mjs` を使う。GitHub Copilotへの読み込み検証は未実施であり、Copilot固有の機能が必要になるまで `com.github.copilot/` は作らない。
+リポジトリ直下はAgent Plugins 1.0形式として実装済みで、Copilot AppとHermesがCodex版と同じ `dist/server.mjs` を使う。`.github/plugin/marketplace.json` により、Copilot Appのカスタムマーケットプレイスとして公開リポジトリを登録できる。Copilot固有の機能が必要になるまで `com.github.copilot/` は作らない。
+
+## Copilot Appへの導入
+
+Copilot Appの **Customize → Plugins** でカスタムマーケットプレイス `nomper/codex-jev` を追加し、その中の `codex-jev` をインストールする。アプリのディープリンクは入力欄を事前入力するだけで、最終的な追加・インストールはアプリ上の確認を必要とする。
+
+Copilot AppとCopilot CLIはユーザー設定とインストール済みプラグインの保存領域を共有する。ただし、利用者向けの基本手順はアプリ内UIに統一し、CLIを必須にしない。
 
 ## 採用しない初期案
 
@@ -61,8 +68,7 @@ Hookはツール実行前後などのライフサイクル処理向けであり�
 
 ## 参考資料
 
-- [Agent customization](https://code.visualstudio.com/docs/copilot/concepts/customization)
-- [Agent plugins in VS Code](https://code.visualstudio.com/docs/agent-customization/agent-plugins)
-- [Adding agent skills for GitHub Copilot](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills)
-- [Add and manage MCP servers in VS Code](https://code.visualstudio.com/docs/agent-customization/mcp-servers)
-- [Agent hooks in Visual Studio Code](https://code.visualstudio.com/docs/agent-customization/hooks)
+- [About GitHub Copilot plugins](https://docs.github.com/en/copilot/concepts/agents/about-plugins)
+- [Customizing the GitHub Copilot app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app)
+- [Using deep links to open the GitHub Copilot app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/open-with-deep-links)
+- [Creating a plugin marketplace](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-marketplace)
