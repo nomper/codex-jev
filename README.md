@@ -6,6 +6,14 @@ A portable Agent Plugin for GitHub Copilot app, Codex, and Hermes that selects p
 
 This is not a general-purpose summary like `/compact`. It keeps exact source blocks needed for the user-supplied `nextTopic` and removes only blocks that are clearly unnecessary. It does not modify the active chat history.
 
+## Supported agents
+
+- ☑ **OpenAI Codex** — supported via the plugin marketplace. See [Install in Codex](#install-in-codex).
+- ☑ **GitHub Copilot app** — supported via the standalone app's plugin marketplace. This does not refer to the VS Code extension. See [Install in the GitHub Copilot app](#install-in-the-github-copilot-app).
+- ☑ **Hermes Agent** — supported on Hermes Agent 0.21.3 or later. See [Install in Hermes](#install-in-hermes).
+
+All three integrations use the same bundled MCP server and expose the same `curate_context` tool.
+
 ## Minimal behavior
 
 - Exposes one MCP tool: `jev_context.curate_context`
@@ -51,7 +59,7 @@ npm install
 npm run check
 ```
 
-The build produces a single bundled file at `plugins/codex-jev/dist/server.mjs`. Both hosts reuse it, and plugin users do not need to run `npm install`.
+The build produces a single bundled file at `plugins/codex-jev/dist/server.mjs`. All supported hosts reuse it, and plugin users do not need to run `npm install`.
 
 ## Install in Hermes
 
