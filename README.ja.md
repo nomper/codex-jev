@@ -6,6 +6,14 @@
 
 これは `/compact` のような会話全体の要約ではありません。ユーザーが指定した `nextTopic` に必要な原文ブロックを残し、明確に不要なブロックだけを除外します。現在のチャット履歴自体は変更しません。
 
+## 対応Agent
+
+- ☑ **OpenAI Codex** — Plugin Marketplace経由で対応。手順は [Codexへ追加](#codexへ追加) を参照。
+- ☑ **GitHub Copilot app** — 独立版アプリのPlugin Marketplace経由で対応。VS Code拡張を指すものではありません。手順は [GitHub Copilot Appへ追加](#github-copilot-appへ追加) を参照。
+- ☑ **Hermes Agent** — Hermes Agent 0.21.3以降に対応。手順は [Hermesへ追加](#hermesへ追加) を参照。
+
+3つの統合はいずれも同じバンドル済みMCPサーバーを使い、同じ `curate_context` ツールを公開します。
+
 ## 最小仕様
 
 - MCPツールは `jev_context.curate_context` の1つだけ
@@ -51,7 +59,7 @@ npm install
 npm run check
 ```
 
-ビルド成果物は `plugins/codex-jev/dist/server.mjs` に単一ファイルとして生成されます。両ホストが同じファイルを使い、インストール先で `npm install` は不要です。
+ビルド成果物は `plugins/codex-jev/dist/server.mjs` に単一ファイルとして生成されます。対応するすべてのホストが同じファイルを使い、インストール先で `npm install` は不要です。
 
 ## Hermesへ追加
 
